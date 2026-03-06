@@ -15,7 +15,7 @@ LANG_CONFIG = {
     },
     "English Synonyms 🇺🇸": {
         "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=703983749&single=true&output=csv",
-        "key": "ensyn" # We use 'en' as the question base
+        "key": "en" # We use 'en' as the question base
     },
     "Japanese 🇯🇵": {
         "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv",
@@ -40,10 +40,12 @@ def load_data(url):
 def get_display_logic(selected_lang, curr_word, conf):
     """Handles logic for switching between translation and synonym modes."""
     if "Synonyms" in selected_lang:
-        display = curr_word.get("en", "N/A")
-        correct = curr_word.get("ensyn", "N/A")
+        # Check for 'Basic Word' first, then 'en' as fallback
+        display = curr_word.get("ensyn", curr_word.get("en", "N/A"))
+        # Check for 'Advanced Word 1' first, then 'ensyn' as fallback
+        correct = curr_word.get("Advanced Word 1", curr_word.get("ensyn", "N/A"))
         sub_text = "Select the Advanced Synonym"
-        ans_key = "ensyn"
+        ans_key = "Advanced Word 1" if "Advanced Word 1" in curr_word else "ensyn"
     else:
         display = curr_word.get(conf["key"], "N/A")
         correct = curr_word.get("si", "N/A")
