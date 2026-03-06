@@ -40,18 +40,23 @@ def load_data(url):
 def get_display_logic(selected_lang, curr_word, conf):
     """Handles logic for switching between translation and synonym modes."""
     if "Synonyms" in selected_lang:
-        # Check for 'Basic Word' first, then 'en' as fallback
-        display = curr_word.get("ensyn", curr_word.get("en", "N/A"))
-        # Check for 'Advanced Word 1' first, then 'ensyn' as fallback
-        correct = curr_word.get("Advanced1", curr_word.get("ensyn", "N/A"))
-        sub_text = curr_word.get("Sinhala Meaning", curr_word.get("ensyn", "N/A"))
-        ans_key = "Advanced1" if "Advanced1" in curr_word else "ensyn"
+        # Display the basic word (ensyn or en)
+        display = curr_word.get("Basic Word", curr_word.get("en", "N/A"))
+        
+        # Logic to pick between Advanced1 and Advanced2 randomly
+        adv_options = [k for k in ["Advanced1", "Advanced2"] if k in curr_word and pd.notna(curr_word[k])]
+        ans_key = random.choice(adv_options) if adv_options else "ensyn"
+        
+        correct = curr_word.get(ans_key, "N/A")
+        # Subtext now shows the Sinhala meaning as a hint
+        sub_text = f"Meaning: {curr_word.get('Sinhala Meaning', 'Select the Synonym')}"
     else:
         display = curr_word.get(conf["key"], "N/A")
         correct = curr_word.get("si", "N/A")
         pr = curr_word.get("pr", "")
         sub_text = f"({pr})" if pr else ""
         ans_key = "si"
+        
     return display, correct, sub_text, ans_key
 
 # --- 4. SIDEBAR: LANGUAGE SELECTOR ---
