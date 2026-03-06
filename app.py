@@ -125,7 +125,8 @@ if st.session_state.game_round < len(st.session_state.current_set):
     cols = st.columns(2)
     for i, opt in enumerate(st.session_state.current_options):
         with cols[i % 2]:
-            if st.button(opt, use_container_width=True, key=f"btn_{st.session_state.game_round}_{opt}", disabled=st.session_state.is_answered):
+            # Added 'i' to the key to ensure uniqueness even if 'opt' values are similar
+            if st.button(opt, use_container_width=True, key=f"btn_{st.session_state.game_round}_{i}_{opt}", disabled=st.session_state.is_answered):
                 st.session_state.is_answered = True
                 if opt == correct_ans:
                     st.success("නිවැරදියි! ✅")
