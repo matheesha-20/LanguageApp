@@ -41,7 +41,7 @@ def get_display_logic(selected_lang, curr_word, conf):
     """Handles logic for switching between translation and synonym modes."""
     if "Synonyms" in selected_lang:
         # Display the basic word (ensyn or en)
-        display = curr_word.get("Basic Word", curr_word.get("en", "N/A"))
+        display = curr_word.get("ensyn", curr_word.get("en", "N/A"))
         
         # Logic to pick between Advanced1 and Advanced2 randomly
         adv_options = [k for k in ["Advanced1", "Advanced2"] if k in curr_word and pd.notna(curr_word[k])]
@@ -49,7 +49,7 @@ def get_display_logic(selected_lang, curr_word, conf):
         
         correct = curr_word.get(ans_key, "N/A")
         # Subtext now shows the Sinhala meaning as a hint
-        sub_text = f"Meaning: {curr_word.get('Sinhala Meaning', 'Select the Synonym')}"
+        sub_text = f"{curr_word.get('Sinhala Meaning', 'Select the Synonym')}"
     else:
         display = curr_word.get(conf["key"], "N/A")
         correct = curr_word.get("si", "N/A")
