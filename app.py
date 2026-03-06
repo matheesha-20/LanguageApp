@@ -7,11 +7,11 @@ import time
 # භාෂාව අනුව ලින්ක් සහ Column Names මෙතන Define කරමු
 LANG_CONFIG = {
     "Italian 🇮🇹": {
-        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv",
+        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=376702926&single=true&output=csv",
         "key": "it"
     },
     "Japanese 🇯🇵": {
-        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=376702926&single=true&output=csv",
+        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv",
         "key": "jp"
     }
 }
@@ -71,6 +71,7 @@ if st.session_state.game_round < len(st.session_state.current_set):
     st.subheader(f"{mode_text}: {st.session_state.game_round + 1} / {len(st.session_state.current_set)}")
     
     # භාෂාව අනුව Column එක තෝරා ගැනීම (it හෝ jp)
+    conf = LANG_CONFIG[selected_lang_name]
     display_word = curr_word.get(conf["key"], 'N/A')
     pr_word = curr_word.get('pr', '')
     si_word = curr_word.get('si', 'N/A')
