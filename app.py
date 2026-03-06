@@ -18,6 +18,8 @@ LANG_CONFIG = {
 
 st.set_page_config(page_title="Universal Learning Pro", page_icon="🌎")
 
+conf = LANG_CONFIG[selected_lang_name]
+
 # --- 2. DATA LOADING ---
 @st.cache_data(ttl=600) 
 def load_data(url):
@@ -50,8 +52,15 @@ if not words:
     st.stop()
 
 # --- 4. SESSION STATES INITIALIZE ---
-if 'word_pool' not in st.session_state:
+if 'word_pool' not in st.session_state or st.session_state.last_lang != selected_lang_name:
     st.session_state.word_pool = words
+    # අලුත් භාෂාවට අදාළව ප්‍රශ්න 10කුත් අලුතින්ම ගන්නවා
+    st.session_state.current_set = random.sample(st.session_state.word_pool, min(10, len(st.session_state.word_pool)))
+    st.session_state.game_round = 0
+    st.session_state.score = 0
+    st.session_state.wrong_list = []
+    st.session_state.is_answered = False
+    st.session_state.is_retake_mode = False
 
 if 'game_round' not in st.session_state:
     st.session_state.game_round = 0
@@ -71,7 +80,6 @@ if st.session_state.game_round < len(st.session_state.current_set):
     st.subheader(f"{mode_text}: {st.session_state.game_round + 1} / {len(st.session_state.current_set)}")
     
     # භාෂාව අනුව Column එක තෝරා ගැනීම (it හෝ jp)
-    conf = LANG_CONFIG[selected_lang_name]
     display_word = curr_word.get(conf["key"], 'N/A')
     pr_word = curr_word.get('pr', '')
     si_word = curr_word.get('si', 'N/A')
