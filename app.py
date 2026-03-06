@@ -4,20 +4,21 @@ import random
 import time
 
 # --- 1. CONFIGURATION & LINKS ---
-# භාෂාව අනුව ලින්ක් සහ Column Names මෙතන Define කරමු
+# මෙතන ලින්ක් දෙක මම හරියටම හැදුවා. 
+# gid=1635387400 -> Italian
+# gid=376702926 -> Japanese
 LANG_CONFIG = {
     "Italian 🇮🇹": {
-        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=376702926&single=true&output=csv",
+        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv",
         "key": "it"
     },
     "Japanese 🇯🇵": {
-        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv",
+        "url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=376702926&single=true&output=csv",
         "key": "jp"
     }
 }
 
 st.set_page_config(page_title="Universal Learning Pro", page_icon="🌎")
-
 
 # --- 2. DATA LOADING ---
 @st.cache_data(ttl=600) 
@@ -35,39 +36,32 @@ with st.sidebar:
     st.header("⚙️ Settings")
     selected_lang_name = st.selectbox("ඉගෙන ගන්නා භාෂාව තෝරන්න:", list(LANG_CONFIG.keys()))
     
-    # භාෂාව මාරු කළොත් පරණ Data Reset කරනවා
-    if 'last_lang' in st.session_state and st.session_state.last_lang != selected_lang_name:
-        for key in ['word_pool', 'game_round', 'score', 'wrong_list', 'current_set', 'is_answered']:
-            if key in st.session_state: del st.session_state[key]
-            
-    st.session_state.last_lang = selected_lang_name
-    conf = LANG_CONFIG[selected_lang_name]
+    # භාෂාව මාරු කළොත් මුළු Session එකම Reset කරනවා
+    if 'last_lang' not in st.session_state or st.session_state.last_lang != selected_lang_name:
+        st.session_state.last_lang = selected_lang_name
+        # සියලුම පරණ variables අයින් කරනවා
+        keys_to_reset = ['word_pool', 'game_round', 'score', 'wrong_list', 'current_set', 'is_answered', 'current_options']
+        for key in keys_to_reset:
+            if key in st.session_state:
+                del st.session_state[key]
+        st.rerun()
 
-# ඩේටා ලෝඩ් කිරීම
+conf = LANG_CONFIG[selected_lang_name]
 words = load_data(conf["url"])
 
 if not words:
-    st.warning("දත්ත ලැබුණේ නැහැ.")
+    st.warning("දත්ත ලැබුණේ නැහැ. කරුණාකර Link පරීක්ෂා කරන්න.")
     st.stop()
 
 # --- 4. SESSION STATES INITIALIZE ---
-if 'word_pool' not in st.session_state or st.session_state.last_lang != selected_lang_name:
+if 'word_pool' not in st.session_state:
     st.session_state.word_pool = words
-    # අලුත් භාෂාවට අදාළව ප්‍රශ්න 10කුත් අලුතින්ම ගන්නවා
-    st.session_state.current_set = random.sample(st.session_state.word_pool, min(10, len(st.session_state.word_pool)))
+    st.session_state.current_set = random.sample(words, min(10, len(words)))
     st.session_state.game_round = 0
     st.session_state.score = 0
     st.session_state.wrong_list = []
     st.session_state.is_answered = False
     st.session_state.is_retake_mode = False
-
-if 'game_round' not in st.session_state:
-    st.session_state.game_round = 0
-    st.session_state.score = 0
-    st.session_state.wrong_list = []
-    st.session_state.is_retake_mode = False 
-    st.session_state.current_set = random.sample(st.session_state.word_pool, min(10, len(st.session_state.word_pool)))
-    st.session_state.is_answered = False
 
 st.title(f"{selected_lang_name} Challenge")
 
@@ -78,12 +72,12 @@ if st.session_state.game_round < len(st.session_state.current_set):
     mode_text = "වැරදුණු වචන පුහුණුව" if st.session_state.is_retake_mode else "ප්‍රශ්න වටය"
     st.subheader(f"{mode_text}: {st.session_state.game_round + 1} / {len(st.session_state.current_set)}")
     
-    # භාෂාව අනුව Column එක තෝරා ගැනීම (it හෝ jp)
+    # ෂීට් එකේ නම අනුව (it හෝ jp) වචනය ගන්නවා
     display_word = curr_word.get(conf["key"], 'N/A')
     pr_word = curr_word.get('pr', '')
     si_word = curr_word.get('si', 'N/A')
 
-    # UI Design - භාෂාව අනුව වර්ණ වෙනස් කිරීම
+    # භාෂාව අනුව Card එකේ පාට වෙනස් කරනවා
     border_color = "#008C45" if "Italian" in selected_lang_name else "#BC002D"
     
     st.markdown(f"""
@@ -93,15 +87,17 @@ if st.session_state.game_round < len(st.session_state.current_set):
         </div>
     """, unsafe_allow_html=True)
 
+    # Options (MCQ) හදන කොටස
     if 'current_options' not in st.session_state:
         correct_ans = si_word
+        # වැරදි පිළිතුරු ගන්නේ අදාළ භාෂාවේ word_pool එකෙන්මයි
         wrong_candidates = [w.get('si', 'N/A') for w in st.session_state.word_pool if w.get('si') != correct_ans]
         wrong_options = random.sample(wrong_candidates, min(3, len(wrong_candidates)))
         all_opts = wrong_options + [correct_ans]
         random.shuffle(all_opts)
         st.session_state.current_options = all_opts
 
-    # Buttons
+    # බටන් පේළි දෙකකට පෙන්වීම
     cols = st.columns(2)
     for i, opt in enumerate(st.session_state.current_options):
         with cols[i % 2]:
@@ -122,7 +118,7 @@ if st.session_state.game_round < len(st.session_state.current_set):
                 if 'current_options' in st.session_state: del st.session_state.current_options
                 st.rerun()
 
-# End of Game
+# වටය අවසානය
 else:
     if st.session_state.wrong_list:
         st.warning(f"වටය අවසන්! ලකුණු: {st.session_state.score}/{len(st.session_state.current_set)}")
@@ -131,6 +127,7 @@ else:
             st.session_state.wrong_list = [] 
             st.session_state.game_round = 0
             st.session_state.is_retake_mode = True 
+            if 'current_options' in st.session_state: del st.session_state.current_options
             st.rerun()
             
     else:
@@ -142,4 +139,5 @@ else:
             st.session_state.wrong_list = []
             st.session_state.is_retake_mode = False
             st.session_state.current_set = random.sample(st.session_state.word_pool, min(10, len(st.session_state.word_pool)))
+            if 'current_options' in st.session_state: del st.session_state.current_options
             st.rerun()
