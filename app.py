@@ -15,7 +15,7 @@ st.set_page_config(page_title="Universal Language Master", page_icon="🌎", lay
 
 # --- 2. DATA LOADING ---
 # අපි පාවිච්චි කරන්නේ English-Sinhala පදනම් කරගත් වචන මාලාවක්
-sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?output=csv"
+sheet_url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQEYl7N7muoi3zY5fgFDBWo8gPrNKJvj8sJQQYmm-nAyF1qE6DMgl2a3cuNsbbrzPMIht-JervgZkMn/pub?gid=1635387400&single=true&output=csv"
 
 @st.cache_data(ttl=3600)
 def load_data():
