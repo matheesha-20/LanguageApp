@@ -18,7 +18,6 @@ LANG_CONFIG = {
 
 st.set_page_config(page_title="Universal Learning Pro", page_icon="🌎")
 
-conf = LANG_CONFIG[selected_lang_name]
 
 # --- 2. DATA LOADING ---
 @st.cache_data(ttl=600) 
