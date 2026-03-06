@@ -19,7 +19,6 @@ def load_data(url):
     try:
         df = pd.read_csv(url)
         df.columns = df.columns.str.strip()
-        # හිස් තැන් (NaN) හිස් strings බවට පත් කරයි
         return df.fillna('').to_dict('records')
     except Exception as e:
         st.error(f"දත්ත ලබාගැනීමේ දෝෂයක්: {e}")
@@ -28,20 +27,18 @@ def load_data(url):
 # --- 3. HELPER FUNCTIONS ---
 def get_display_logic(selected_lang, curr_word, conf):
     if "Synonyms" in selected_lang:
-        # මෙතනදී ප්‍රශ්නය ලෙස පෙන්වන්නේ ensyn එකේ තියෙන මූලික වචනයයි
         display = curr_word.get(conf["key"], "N/A")
         
-        # Advanced1 හෝ Advanced2 අතරින් එකක් අහඹු ලෙස නිවැරදි පිළිතුර ලෙස තෝරාගනී
+        # අහඹු ලෙස Advanced1 හෝ Advanced2 තෝරාගනී
         adv_keys = [k for k in ["Advanced1", "Advanced2"] if curr_word.get(k)]
         ans_key = random.choice(adv_keys) if adv_keys else conf["key"]
         
-        correct = curr_word.get(ans_key, "N/A")
+        correct = str(curr_word.get(ans_key, "N/A")).strip()
         sub_text = curr_word.get("Sinhala Meaning", "Select the Advanced Synonym")
         mode = "SynonymMode"
     else:
-        # සාමාන්‍ය භාෂා සඳහා
         display = curr_word.get(conf["key"], "N/A")
-        correct = curr_word.get("si", "N/A")
+        correct = str(curr_word.get("si", "N/A")).strip()
         pr = curr_word.get("pr", "")
         sub_text = f"({pr})" if pr else ""
         mode = "TranslationMode"
@@ -91,26 +88,30 @@ if st.session_state.game_round < len(st.session_state.current_set):
         </div>
     """, unsafe_allow_html=True)
 
-    # MCQ Generator
+    # --- MCQ GENERATOR (RE-FIXED) ---
     if 'current_options' not in st.session_state:
+        wrong_candidates = set()
+        
         if mode == "SynonymMode":
-            # සියලුම synonym columns වලින් වැරදි පිළිතුරු සඳහා pool එකක් සාදා ගනී
-            wrong_pool = []
             for w in st.session_state.word_pool:
                 for k in ["Advanced1", "Advanced2", "ensyn"]:
                     val = str(w.get(k, '')).strip()
+                    # නිවැරදි පිළිතුරට සමාන කිසිම දෙයක් pool එකට ගන්නේ නැත
                     if val and val != correct_ans:
-                        wrong_pool.append(val)
+                        wrong_candidates.add(val)
         else:
-            wrong_pool = [str(w.get('si', '')).strip() for w in st.session_state.word_pool if str(w.get('si')) != correct_ans]
+            for w in st.session_state.word_pool:
+                val = str(w.get('si', '')).strip()
+                if val and val != correct_ans:
+                    wrong_candidates.add(val)
 
-        unique_wrong = list(set(wrong_pool))
-        wrong_options = random.sample(unique_wrong, min(3, len(unique_wrong)))
+        # අහඹු ලෙස වැරදි පිළිතුරු 3ක් තෝරාගනී
+        wrong_options = random.sample(list(wrong_candidates), min(3, len(wrong_candidates)))
         
-        # නිවැරදි පිළිතුර සමඟ මිශ්‍ර කර shuffle කරයි
-        all_opts = list(set(wrong_options + [correct_ans]))
-        random.shuffle(all_opts)
-        st.session_state.current_options = all_opts
+        # නිවැරදි පිළිතුර අනිවාර්යයෙන්ම ඇතුළත් කර shuffle කරයි
+        final_opts = wrong_options + [correct_ans]
+        random.shuffle(final_opts)
+        st.session_state.current_options = final_opts
 
     # Display Buttons
     cols = st.columns(2)
@@ -132,10 +133,9 @@ if st.session_state.game_round < len(st.session_state.current_set):
                 if 'current_options' in st.session_state: del st.session_state.current_options
                 st.rerun()
 else:
-    # අවසාන ප්‍රතිඵලය
     st.balloons()
-    st.success(f"වටය අවසන්! ඔබේ ලකුණු: {st.session_state.score}/{len(st.session_state.current_set)}")
-    if st.button("නැවත ආරම්භ කරන්න ➡️"):
+    st.success(f"වටය අවසන්! ලකුණු: {st.session_state.score}/{len(st.session_state.current_set)}")
+    if st.button("නැවත ආරම්භ කරන්න 🔄"):
         st.session_state.game_round = 0
         st.session_state.score = 0
         st.session_state.wrong_list = []
