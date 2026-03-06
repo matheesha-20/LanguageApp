@@ -44,7 +44,7 @@ def get_display_logic(selected_lang, curr_word, conf):
         display = curr_word.get("ensyn", curr_word.get("en", "N/A"))
         # Check for 'Advanced Word 1' first, then 'ensyn' as fallback
         correct = curr_word.get("Advanced Word 1", curr_word.get("ensyn", "N/A"))
-        sub_text = "Select the Advanced Synonym"
+        sub_text = curr_word.get("Sinhala Meaning", curr_word.get("ensyn", "N/A"))
         ans_key = "Advanced Word 1" if "Advanced Word 1" in curr_word else "ensyn"
     else:
         display = curr_word.get(conf["key"], "N/A")
