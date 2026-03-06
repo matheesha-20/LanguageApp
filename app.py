@@ -43,9 +43,9 @@ def get_display_logic(selected_lang, curr_word, conf):
         # Check for 'Basic Word' first, then 'en' as fallback
         display = curr_word.get("ensyn", curr_word.get("en", "N/A"))
         # Check for 'Advanced Word 1' first, then 'ensyn' as fallback
-        correct = curr_word.get("Advanced Word 1", curr_word.get("ensyn", "N/A"))
+        correct = curr_word.get("Advanced1", curr_word.get("ensyn", "N/A"))
         sub_text = curr_word.get("Sinhala Meaning", curr_word.get("ensyn", "N/A"))
-        ans_key = "Advanced Word 1" if "Advanced Word 1" in curr_word else "ensyn"
+        ans_key = "Advanced1" if "Advanced1" in curr_word else "ensyn"
     else:
         display = curr_word.get(conf["key"], "N/A")
         correct = curr_word.get("si", "N/A")
